@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "hubmap"
+version = "0.1.0"
+description = "Model and associated code for the Kaggle competition `HuBMAP + HPA - Hacking the Human Body: Segment multi-organ functional tissue units`."
+authors = [
+    "Najib Ishaq <najib_ishaq@zoho.com>",
+    "Morgan Prior <morgan_prior@uri.edu>"
+]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+numpy = "1.*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
