@@ -17,4 +17,7 @@ logger.info('Hello from hubmap!')
 
 for _, path in inspect.getmembers(paths):
     if isinstance(path, pathlib.PosixPath):
-        assert path.exists(), f'Path not found {path} ...'
+        if path.exists():
+            logger.info(f'Found path: {path} ...')
+        else:
+            logger.error(f'Path not found {path} ...')
