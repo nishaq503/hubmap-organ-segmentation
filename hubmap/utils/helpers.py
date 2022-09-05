@@ -1,22 +1,13 @@
 import logging
 import os
 import random
-import typing
 
 import numpy
 
 from . import constants
 
-LogLevels = typing.Literal[
-    'DEBUG',
-    'INFO',
-    'WARN',
-    'ERROR',
-    'CRITICAL',
-]
 
-
-def make_logger(name: str, level: LogLevels = None):
+def make_logger(name: str, level: str = None):
     logger_ = logging.getLogger(name)
     logger_.setLevel(constants.KAGGLE_LOG if level is None else level)
     return logger_
