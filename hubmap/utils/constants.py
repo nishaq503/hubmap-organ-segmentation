@@ -5,6 +5,7 @@ KAGGLE_LOG = getattr(logging, os.environ.get('KAGGLE_LOG', 'INFO'))
 
 MAX_WORKERS = max(1, int(os.cpu_count() / 2))
 EPSILON = 1e-12  # To avoid divide-by-zero errors
+MAX_MEMORY = 8 * 1024 * 1024  # bytes
 
 
 class Unset:
