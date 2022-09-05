@@ -18,3 +18,18 @@ TEST_IMAGES = INPUT_DIR.joinpath('test_images')
 WORKING_DIR = ROOT_DIR.joinpath('working', 'hubmap-organ-segmentation')
 
 SUBMISSION_PATH = WORKING_DIR.joinpath('submission.csv')
+
+INITIAL_PATHS = [
+    'INPUT_DIR',
+    'TRAIN_CSV',
+    'TEST_CSV',
+    'SAMPLE_SUBMISSION_CSV',
+    'TRAIN_IMAGES',
+    'TRAIN_ANNOTATIONS',
+    'TEST_IMAGES',
+    'WORKING_DIR',
+    'SUBMISSION_PATH',
+]
+
+TRAIN_TILES = WORKING_DIR.joinpath('train', 'intensity')
+TRAIN_MASKS = WORKING_DIR.joinpath('train', 'labels')

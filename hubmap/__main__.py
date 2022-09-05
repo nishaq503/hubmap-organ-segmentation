@@ -1,7 +1,7 @@
-import inspect
 import logging
 import pathlib
 
+from hubmap.data import preparse
 from hubmap.utils import helpers
 from hubmap.utils import paths
 
@@ -15,9 +15,13 @@ logger = helpers.make_logger('hubmap.main')
 logger.info('Hello from hubmap!')
 
 
-for _, path in inspect.getmembers(paths):
+for path in paths.INITIAL_PATHS:
     if isinstance(path, pathlib.PosixPath):
         if path.exists():
-            logger.info(f'Found path: {path} ...')
+            logger.debug(f'Found path: {path} ...')
         else:
-            logger.error(f'Path not found {path} ...')
+            message = f'Path not found {path} ...'
+            logger.error(message)
+            raise ValueError(f'Path not found {path} ...')
+else:
+    logger.info(f'Found all initially required paths ...')
