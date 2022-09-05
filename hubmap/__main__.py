@@ -25,3 +25,7 @@ for path in paths.INITIAL_PATHS:
             raise ValueError(f'Path not found {path} ...')
 else:
     logger.info(f'Found all initially required paths ...')
+
+
+logger.info(f'Starting to tile the training images')
+preparse.tile_all_images(paths.TRAIN_CSV)
