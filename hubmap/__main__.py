@@ -5,6 +5,8 @@ import pathlib
 from hubmap.utils import helpers
 from hubmap.utils import paths
 
+#delete this later
+
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s',
     datefmt='%d-%b-%y %H:%M:%S',
