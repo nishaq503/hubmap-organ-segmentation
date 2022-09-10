@@ -15,7 +15,6 @@ logger = helpers.make_logger('hubmap.main')
 
 logger.info('Hello from hubmap!')
 
-
 for path in paths.INITIAL_PATHS:
     if isinstance(path, pathlib.PosixPath):
         if path.exists():
