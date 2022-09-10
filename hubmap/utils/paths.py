@@ -19,6 +19,13 @@ WORKING_DIR = ROOT_DIR.joinpath('working', 'hubmap-organ-segmentation')
 
 SUBMISSION_PATH = WORKING_DIR.joinpath('submission.csv')
 
+SAVED_MODELS = (
+    pathlib.Path(__file__)
+    .parent.parent.parent
+    .joinpath('saved_models')
+    .resolve()
+)
+
 INITIAL_PATHS = [
     'INPUT_DIR',
     'TRAIN_CSV',
@@ -29,6 +36,7 @@ INITIAL_PATHS = [
     'TEST_IMAGES',
     'WORKING_DIR',
     'SUBMISSION_PATH',
+    'SAVED_MODELS',
 ]
 
 TRAIN_TILES = WORKING_DIR.joinpath('train', 'intensity')
