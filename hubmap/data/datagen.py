@@ -3,6 +3,7 @@ import pathlib
 
 import keras.utils
 import pandas
+import filepattern
 
 from hubmap.utils import paths
 
@@ -23,6 +24,8 @@ class HubMapData(keras.utils.Sequence):
 
         self.train_tiles_dir = paths.TRAIN_TILES
         self.tile_pattern = '{i}_x{x:02d}_y{y:02d}_c{c:1d}.npy'
+        tile_fp = filepattern.Filepattern(self.train_tiles_dir, self.tile_pattern)
+        # tile_paths = [file for file in tile_fp()]
 
         self.train_masks_dir = paths.TRAIN_MASKS
         self.mask_pattern = '{i}_x{x:02d}_y{y:02d}.npy'
