@@ -70,6 +70,7 @@ class HubMapData(keras.utils.Sequence):
             for c, path in enumerate(tile_paths):
                 tiles[i, :, :, c] = numpy.load(str(path))
 
+        masks = masks.astype(bool).astype(numpy.float32)
         return tiles, masks
 
 

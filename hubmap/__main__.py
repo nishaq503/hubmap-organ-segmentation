@@ -1,8 +1,14 @@
 import logging
 import pathlib
 
+import keras
+import segmentation_models
+from segmentation_models import losses
+from segmentation_models import metrics
+
 from hubmap.data import datagen
 from hubmap.data import preparse
+from hubmap.utils import constants
 from hubmap.utils import helpers
 from hubmap.utils import paths
 
@@ -33,3 +39,26 @@ if rerun:
     preparse.tile_all_images(paths.TRAIN_CSV)
 
 data = datagen.HubMapData(paths.TRAIN_CSV)
+
+model: keras.Model = segmentation_models.Unet(
+    backbone_name='resnet34',
+    input_shape=(constants.TILE_SIZE, constants.TILE_SIZE, 3),
+    classes=1,
+    activation='sigmoid',
+    encoder_weights='imagenet',
+    # encoder_freeze=True,
+)
+
+model.compile(
+    optimizer='adam',
+    loss=losses.dice_loss,
+    metrics=metrics.iou_score,
+)
+
+# model.summary(line_length=160)
+
+model.fit_generator(
+    generator=data,
+    epochs=10,
+    callbacks=None,
+)
