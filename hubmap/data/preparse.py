@@ -10,6 +10,8 @@ from hubmap.utils import constants
 from hubmap.utils import helpers
 from hubmap.utils import paths
 
+logger = helpers.make_logger(__name__)
+
 
 def tile_all_images(csv_path: pathlib.Path):
     # TODO: Make a train/valid/test split
@@ -76,8 +78,7 @@ def make_tiles(
     min_intensity = numpy.min(image)
     max_intensity = numpy.max(image)
 
-    dtype = numpy.uint8 if c is None else numpy.float32
-    tile_template = numpy.zeros((tile_stride, tile_stride), dtype=dtype)
+    tile_template = numpy.zeros((tile_stride, tile_stride), dtype=numpy.float32)
 
     for x, x_min in enumerate(range(0, x_end, tile_stride)):
         x_max = min(x_end, x_min + tile_stride)
@@ -86,7 +87,8 @@ def make_tiles(
             y_max = min(y_end, y_min + tile_stride)
 
             in_tile = image[x_min:x_max, y_min:y_max]
-            in_tile = (in_tile - min_intensity) / (max_intensity - min_intensity + constants.EPSILON)
+            if c is not None:
+                in_tile = (in_tile - min_intensity) / (max_intensity - min_intensity + constants.EPSILON)
 
             out_tile = numpy.zeros_like(tile_template)
             out_tile[:x_max - x_min, :y_max - y_min] = in_tile[:]
@@ -99,6 +101,7 @@ def make_tiles(
                 allow_pickle=False,
                 fix_imports=False,
             )
+
     return
 
 

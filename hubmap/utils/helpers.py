@@ -37,9 +37,9 @@ def rle_to_mask(rle: str, height: int, width: int):
     s = rle.split()
     start, length = [numpy.asarray(x, dtype=int) for x in (s[0:][::2], s[1:][::2])]
     start -= 1
-    mask = numpy.zeros(height * width, dtype=numpy.uint8)
+    mask = numpy.zeros(height * width, dtype=numpy.float32)
     for i, l in zip(start, length):
-        mask[i:i + l] = 255
+        mask[i:i + l] = 1
     mask = mask.reshape(width, height).T
     mask = numpy.ascontiguousarray(mask)
     return mask

@@ -35,12 +35,14 @@ class HubMapData(keras.utils.Sequence):
         self.mask_pattern = '{p+}_x{xx}_y{yy}.npy'
         mask_fp = filepattern.FilePattern(self.train_masks_dir, self.mask_pattern)
 
-        # self.tile_paths = [file[0]['file'] for file in tile_fp(group_by=['p', 'x', 'y'])]
-        # self.mask_tiles = [file[0]['file'] for file in mask_fp()]
         self.tile_paths: typing.List[typing.Tuple[pathlib.Path, typing.List[pathlib.Path]]] = [
-            (masks[0]['file'], [tile['file'] for tile in tiles])
-            for masks, tiles in zip(mask_fp(), tile_fp(group_by=['c']))
+            (mask[0]['file'], [tile['file'] for tile in tiles])
+            for mask, tiles in zip(mask_fp(), tile_fp(group_by=['c']))
         ]
+        # self.tile_paths = [
+        #     (mask, tiles) for mask, tiles in self.tile_paths
+        #     if numpy.sum(numpy.load(str(mask))) > 0
+        # ]
 
         self.num_batches = len(self.tile_paths) // self.batch_size
         self.on_epoch_end()
