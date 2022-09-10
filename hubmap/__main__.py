@@ -1,10 +1,10 @@
 import logging
 import pathlib
 
+from hubmap.data import datagen
 from hubmap.data import preparse
 from hubmap.utils import helpers
 from hubmap.utils import paths
-
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s',
@@ -27,5 +27,9 @@ else:
     logger.info(f'Found all initially required paths ...')
 
 
-logger.info(f'Starting to tile the training images')
-preparse.tile_all_images(paths.TRAIN_CSV)
+rerun = False  # TODO: Make this a commandline arg
+if rerun:
+    logger.info(f'Starting to tile the training images')
+    preparse.tile_all_images(paths.TRAIN_CSV)
+
+data = datagen.HubMapData(paths.TRAIN_CSV)
