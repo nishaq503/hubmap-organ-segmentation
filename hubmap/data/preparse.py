@@ -18,7 +18,7 @@ def tile_all_images(csv_path: pathlib.Path):
     ids = df.id.to_list()
     for i in tqdm.tqdm(ids):
         rle = df[df.id == i]['rle'].iloc[-1]
-        make_all_tiles(i, rle, 256)
+        make_all_tiles(i, rle, constants.TILE_SIZE)
     return
 
 
