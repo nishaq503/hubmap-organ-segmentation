@@ -1,7 +1,7 @@
 import logging
 import pathlib
 
-import keras
+import keras.callbacks
 import segmentation_models
 from segmentation_models import losses
 from segmentation_models import metrics
@@ -43,8 +43,7 @@ data = datagen.HubMapData(paths.TRAIN_CSV)
 model: keras.Model = segmentation_models.Unet(
     backbone_name='resnet34',
     input_shape=(constants.TILE_SIZE, constants.TILE_SIZE, 3),
-    classes=1,
-    activation='sigmoid',
+    # classes=1,
     encoder_weights='imagenet',
     # encoder_freeze=True,
 )
@@ -52,13 +51,32 @@ model: keras.Model = segmentation_models.Unet(
 model.compile(
     optimizer='adam',
     loss=losses.dice_loss,
-    metrics=metrics.iou_score,
+    metrics=[metrics.iou_score],
 )
 
 # model.summary(line_length=160)
 
+callbacks = [
+    keras.callbacks.ModelCheckpoint(
+        filepath=paths.SAVED_MODELS,
+        monitor='loss',
+        verbose=1,
+    ),
+    keras.callbacks.EarlyStopping(
+        monitor='loss',
+        min_delta=1e-3,
+        patience=1,
+        verbose=1,
+        restore_best_weights=True,
+    ),
+]
+
 model.fit_generator(
     generator=data,
-    epochs=10,
-    callbacks=None,
+    epochs=4,
+    callbacks=callbacks,
+)
+
+model.save(
+    filepath=paths.SAVED_MODELS.joinpath('final_model'),
 )
