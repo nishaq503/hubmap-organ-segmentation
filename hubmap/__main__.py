@@ -39,7 +39,7 @@ if rerun:
     preparse.tile_all_images(paths.TRAIN_CSV)
 
 logger.info('Creating Data Generator ...')
-data = datagen.HubMapData(paths.TRAIN_CSV)
+data = datagen.HubMapData(paths.TRAIN_CSV, batch_size=32)
 
 logger.info('Initializing model ...')
 model: keras.Model = segmentation_models.Unet(
