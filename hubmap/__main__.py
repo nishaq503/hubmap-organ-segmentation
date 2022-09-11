@@ -53,7 +53,7 @@ model: keras.Model = segmentation_models.Unet(
 model.compile(
     optimizer='adam',
     loss=losses.dice_loss,
-    metrics=[metrics.iou_score],
+    metrics=[metrics.FScore()],
 )
 
 # model.summary(line_length=160)
