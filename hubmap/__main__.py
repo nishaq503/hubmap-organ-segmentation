@@ -38,8 +38,10 @@ if rerun:
     logger.info(f'Starting to tile the training images')
     preparse.tile_all_images(paths.TRAIN_CSV)
 
+logger.info('Creating Data Generator ...')
 data = datagen.HubMapData(paths.TRAIN_CSV)
 
+logger.info('Initializing model ...')
 model: keras.Model = segmentation_models.Unet(
     backbone_name='resnet34',
     input_shape=(constants.TILE_SIZE, constants.TILE_SIZE, 3),
@@ -64,8 +66,8 @@ callbacks = [
     ),
     keras.callbacks.EarlyStopping(
         monitor='loss',
-        min_delta=1e-3,
-        patience=1,
+        min_delta=1e-4,
+        patience=4,
         verbose=1,
         restore_best_weights=True,
     ),
@@ -73,7 +75,7 @@ callbacks = [
 
 model.fit_generator(
     generator=data,
-    epochs=4,
+    epochs=128,
     callbacks=callbacks,
 )
 
