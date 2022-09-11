@@ -60,7 +60,7 @@ model.compile(
 
 callbacks = [
     keras.callbacks.ModelCheckpoint(
-        filepath=paths.SAVED_MODELS,
+        filepath=paths.SAVED_MODELS.joinpath('model-{epoch:04d}-{loss:.4f}.h5'),
         monitor='loss',
         verbose=1,
     ),
