@@ -63,7 +63,7 @@ class HubMapData(keras.utils.Sequence):
 
     def __data_generation(self, batch_indices: typing.List[int]) -> typing.Tuple[numpy.ndarray, numpy.ndarray]:
         tiles = numpy.empty((self.batch_size, constants.TILE_SIZE, constants.TILE_SIZE, 3), dtype=numpy.float32)
-        masks = numpy.empty((self.batch_size, constants.TILE_SIZE, constants.TILE_SIZE, 1), dtype=numpy.uint8)
+        masks = numpy.empty((self.batch_size, constants.TILE_SIZE, constants.TILE_SIZE, 1), dtype=numpy.float32)
 
         for i, index in enumerate(batch_indices):
             mask_path, tile_paths = self.tile_paths[index]
@@ -72,7 +72,6 @@ class HubMapData(keras.utils.Sequence):
             for c, path in enumerate(tile_paths):
                 tiles[i, :, :, c] = numpy.load(str(path))
 
-        masks = masks.astype(bool).astype(numpy.float32)
         return tiles, masks
 
 
