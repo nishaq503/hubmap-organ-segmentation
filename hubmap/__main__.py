@@ -36,7 +36,10 @@ if rerun:
     logger.info(f'Starting to tile the training images ...')
     preparse.tile_all_images(paths.TRAIN_CSV)
 
-model = models.HubMap(backbone='resnet34', pretrained=True)
+model = models.HubMap(
+    backbone='resnet34',
+    pretrained=True,
+)
 model.default_compile()
 # model.summary(line_length=160)
 
@@ -51,4 +54,5 @@ history = model.default_fit(
     training_data=training_data,
     epochs=128,
     validation_data=validation_data,
+    saved_models_dir=paths.SAVED_MODELS.joinpath(model.backbone),
 )

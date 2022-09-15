@@ -12,13 +12,16 @@ from segmentation_models import metrics
 from hubmap.data import datagen
 from hubmap.utils import constants
 from hubmap.utils import helpers
-from hubmap.utils import paths
 
 logger = helpers.make_logger(__name__)
 
 
 class HubMap(keras.Model):
-    def __init__(self, backbone: str, pretrained: bool):
+    def __init__(
+            self,
+            backbone: str,
+            pretrained: bool,
+    ):
         if backbone not in constants.BACKBONES:
             raise ValueError(f'`backbone` must be one of {constants.BACKBONES}. Got {backbone} instead.')
 
@@ -28,10 +31,6 @@ class HubMap(keras.Model):
         self.backbone = backbone
         self.model_name = f'unet-{self.backbone}'
         self.encoder_weights = 'imagenet' if pretrained else None
-
-        self.saved_models_dir = paths.SAVED_MODELS.joinpath(backbone)
-        self.saved_models_dir.mkdir(exist_ok=True)
-
         self.callbacks = list()
         self.history = None
 
@@ -67,6 +66,7 @@ class HubMap(keras.Model):
             training_data: datagen.HubMapData,
             epochs: int,
             validation_data: typing.Optional[datagen.HubMapData],
+            saved_models_dir: pathlib.Path,
     ):
         saved_paths = list(sorted(path for path in self.saved_models_dir.iterdir() if path.name.startswith('model-')))
         if len(saved_paths) > 0:
@@ -105,8 +105,8 @@ class HubMap(keras.Model):
         )
 
         logger.info(f'Saving final model ...')
-        self.save(self.saved_models_dir.joinpath(f'{self.name}-final.h5'))
-        with open(self.saved_models_dir.joinpath('history.json'), 'w') as writer:
+        self.save(saved_models_dir.joinpath(f'{self.name}-final.h5'))
+        with open(saved_models_dir.joinpath('history.json'), 'w') as writer:
             json.dump(self.history.history, writer, indent=4)
 
         return self.history
