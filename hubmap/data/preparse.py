@@ -1,10 +1,10 @@
+import concurrent.futures
 import pathlib
 import typing
 
 import numpy
 import pandas
 from matplotlib import pyplot
-import tqdm
 
 from hubmap.utils import constants
 from hubmap.utils import helpers
@@ -18,9 +18,24 @@ def tile_all_images(csv_path: pathlib.Path):
 
     df = pandas.read_csv(csv_path)
     ids = df.id.to_list()
-    for i in tqdm.tqdm(ids):
-        rle = df[df.id == i]['rle'].iloc[-1]
-        make_all_tiles(i, rle, constants.TILE_SIZE)
+
+    with concurrent.futures.ProcessPoolExecutor(max_workers=constants.MAX_WORKERS) as executor:
+        futures = list()
+
+        for i in ids:
+            rle = df[df.id == i]['rle'].iloc[-1]
+            futures.append(executor.submit(
+                make_all_tiles,
+                i,
+                rle,
+                constants.TILE_SIZE,
+            ))
+
+        logger.info(f'Preparsing images. Progress: {0:6.2f}% ...')
+        for i, f in enumerate(concurrent.futures.as_completed(futures)):
+            logger.info(f'Preparsing images. Progress: {100 * (i + 1) / len(ids):6.2f}% ...')
+            f.result()
+
     return
 
 
@@ -51,7 +66,7 @@ def make_all_tiles(
         c=None,
     )
 
-    return
+    return True
 
 
 def make_tiles(

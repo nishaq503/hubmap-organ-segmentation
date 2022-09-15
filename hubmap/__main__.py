@@ -46,13 +46,15 @@ model.default_compile()
 training_data, validation_data = datagen.train_valid_split(
     seed=42,
     valid_fraction=0.1,
-    batch_size=16,
+    batch_size=2,
     shuffle=True,
 )
 
+saved_models_dir = paths.SAVED_MODELS.joinpath(model.backbone)
+saved_models_dir.mkdir(exist_ok=True)
 history = model.default_fit(
     training_data=training_data,
     epochs=128,
     validation_data=validation_data,
-    saved_models_dir=paths.SAVED_MODELS.joinpath(model.backbone),
+    saved_models_dir=saved_models_dir,
 )

@@ -68,12 +68,12 @@ class HubMap(keras.Model):
             validation_data: typing.Optional[datagen.HubMapData],
             saved_models_dir: pathlib.Path,
     ):
-        saved_paths = list(sorted(path for path in self.saved_models_dir.iterdir() if path.name.startswith('model-')))
+        saved_paths = list(sorted(path for path in saved_models_dir.iterdir() if path.name.startswith(self.model_name)))
         if len(saved_paths) > 0:
-            logger.info(f'Loading model from before ...')
             last_path = saved_paths[-1]
             self.load_weights(last_path)
-            initial_epoch = int(last_path.name.split('-')[1])
+            initial_epoch = int(last_path.name.split('-')[2])
+            logger.info(f'Loading model from epoch {initial_epoch} ...')
         else:
             logger.info('Starting training from scratch ...')
             initial_epoch = 0
@@ -82,7 +82,7 @@ class HubMap(keras.Model):
         name_fmt = '{epoch:04d}-{' + monitor + ':.4f}.h5'
         self.callbacks = [
             keras.callbacks.ModelCheckpoint(
-                filepath=self.saved_models_dir.joinpath(f'{self.model_name}-' + name_fmt),
+                filepath=saved_models_dir.joinpath(f'{self.model_name}-' + name_fmt),
                 monitor=monitor,
                 verbose=1,
             ),
@@ -105,7 +105,7 @@ class HubMap(keras.Model):
         )
 
         logger.info(f'Saving final model ...')
-        self.save(saved_models_dir.joinpath(f'{self.name}-final.h5'))
+        self.save(saved_models_dir.joinpath(f'{self.model_name}-final.h5'))
         with open(saved_models_dir.joinpath('history.json'), 'w') as writer:
             json.dump(self.history.history, writer, indent=4)
 
