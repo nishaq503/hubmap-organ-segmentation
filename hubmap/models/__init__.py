@@ -1,1 +1,1 @@
-from . import base as base
+from .base import HubMap
