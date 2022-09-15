@@ -40,11 +40,15 @@ model = models.HubMap(backbone='resnet34', pretrained=True)
 model.default_compile()
 # model.summary(line_length=160)
 
-logger.info('Creating Data Generator ...')
-data = datagen.HubMapData(paths.TRAIN_CSV, batch_size=32)
+training_data, validation_data = datagen.train_valid_split(
+    seed=42,
+    valid_fraction=0.1,
+    batch_size=16,
+    shuffle=True,
+)
 
 history = model.default_fit(
-    training_data=data,
+    training_data=training_data,
     epochs=128,
-    validation_data=None,
+    validation_data=validation_data,
 )

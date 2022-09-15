@@ -1,5 +1,5 @@
-import gc
 import pathlib
+import random
 import typing
 
 import filepattern
@@ -8,24 +8,22 @@ import numpy
 import pandas
 
 from hubmap.utils import constants
+from hubmap.utils import helpers
 from hubmap.utils import paths
+
+logger = helpers.make_logger(__name__)
 
 
 class HubMapData(keras.utils.Sequence):
     def __init__(
             self,
-            csv_path: pathlib.Path,
+            ids: typing.List[int],
             batch_size: int = 128,
             shuffle: bool = True,
     ):
         self.batch_size = batch_size
         self.shuffle = shuffle
-
-        df = pandas.read_csv(csv_path)
-        self.ids = df.id.to_list()
-
-        del df
-        gc.collect()
+        self.ids = ids
 
         self.train_tiles_dir = paths.TRAIN_TILES
         self.tile_pattern = '{p+}_x{xx}_y{yy}_c{c}.npy'
@@ -38,11 +36,8 @@ class HubMapData(keras.utils.Sequence):
         self.tile_paths: typing.List[typing.Tuple[pathlib.Path, typing.List[pathlib.Path]]] = [
             (mask[0]['file'], [tile['file'] for tile in tiles])
             for mask, tiles in zip(mask_fp(), tile_fp(group_by=['c']))
+            if mask[0]['p'] in self.ids
         ]
-        # self.tile_paths = [
-        #     (mask, tiles) for mask, tiles in self.tile_paths
-        #     if numpy.sum(numpy.load(str(mask))) > 0
-        # ]
 
         self.num_batches = len(self.tile_paths) // self.batch_size
         self.on_epoch_end()
@@ -75,6 +70,38 @@ class HubMapData(keras.utils.Sequence):
         return tiles, masks
 
 
+def train_valid_split(
+        seed: int,
+        valid_fraction: float,
+        batch_size: int,
+        shuffle: bool,
+) -> typing.Tuple[HubMapData, HubMapData]:
+    if not (0 < valid_fraction < 1):
+        raise ValueError(f'`valid_fraction` must be a `float` in the (0, 1) range. Got {valid_fraction:.2e} instead.')
+
+    helpers.seed_everything(seed)
+
+    ids: typing.List[int] = pandas.read_csv(paths.TRAIN_CSV).id.to_list()
+    random.shuffle(ids)
+
+    valid_num = max(1, int(valid_fraction * len(ids)))
+
+    logger.info(f'Creating dataloaders with {len(ids) - valid_num} training images and {valid_num} validation images ...')
+    training_data = HubMapData(
+        ids=ids[valid_num:],
+        batch_size=batch_size,
+        shuffle=shuffle,
+    )
+    validation_data = HubMapData(
+        ids=ids[:valid_num],
+        batch_size=batch_size,
+        shuffle=shuffle,
+    )
+
+    return training_data, validation_data
+
+
 __all__ = [
     'HubMapData',
+    'train_valid_split',
 ]
