@@ -49,8 +49,8 @@ class HubMap(keras.Model):
     def default_compile(self):
         self.compile(
             optimizer='adam',
-            loss=losses.dice_loss,
-            metrics=[metrics.iou_score, metrics.f1_score],
+            loss=losses.binary_crossentropy,
+            metrics=[metrics.f1_score],
         )
         return
 
@@ -68,7 +68,7 @@ class HubMap(keras.Model):
             validation_data: typing.Optional[datagen.HubMapData],
             saved_models_dir: pathlib.Path,
     ):
-        saved_paths = list(sorted(path for path in saved_models_dir.iterdir() if path.name.startswith(self.model_name)))
+        saved_paths = list(sorted(path for path in saved_models_dir.iterdir() if path.name.startswith(self.model_name) and 'final' not in path.name))
         if len(saved_paths) > 0:
             last_path = saved_paths[-1]
             self.load_weights(last_path)
@@ -78,20 +78,22 @@ class HubMap(keras.Model):
             logger.info('Starting training from scratch ...')
             initial_epoch = 0
 
-        monitor = 'loss' if validation_data is None else 'val_loss'
+        monitor = 'f1-score' if validation_data is None else 'val_f1-score'
         name_fmt = '{epoch:04d}-{' + monitor + ':.4f}.h5'
         self.callbacks = [
             keras.callbacks.ModelCheckpoint(
                 filepath=saved_models_dir.joinpath(f'{self.model_name}-' + name_fmt),
                 monitor=monitor,
                 verbose=1,
+                mode='max',
             ),
             keras.callbacks.EarlyStopping(
                 monitor=monitor,
-                min_delta=1e-3,
-                patience=8,
+                min_delta=1e-4,
+                patience=64,
                 verbose=1,
                 restore_best_weights=True,
+                mode='max',
             ),
         ]
 

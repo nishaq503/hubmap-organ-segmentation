@@ -33,8 +33,12 @@ else:
 
 rerun = False  # TODO: Make this a commandline arg
 if rerun:
+    paths.TRAIN_RESIZED.mkdir(exist_ok=True)
+    for path in paths.TRAIN_RESIZED.iterdir():
+        path.unlink()
+
     logger.info(f'Starting to tile the training images ...')
-    preparse.tile_all_images(paths.TRAIN_CSV)
+    preparse.resize_all_images(paths.TRAIN_CSV)
 
 model = models.HubMap(
     backbone='resnet34',
@@ -54,7 +58,7 @@ saved_models_dir = paths.SAVED_MODELS.joinpath(model.backbone)
 saved_models_dir.mkdir(exist_ok=True)
 history = model.default_fit(
     training_data=training_data,
-    epochs=128,
+    epochs=1024,
     validation_data=validation_data,
     saved_models_dir=saved_models_dir,
 )

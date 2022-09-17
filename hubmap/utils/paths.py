@@ -41,3 +41,4 @@ INITIAL_PATHS = [
 
 TRAIN_TILES = WORKING_DIR.joinpath('train', 'intensity')
 TRAIN_MASKS = WORKING_DIR.joinpath('train', 'labels')
+TRAIN_RESIZED = WORKING_DIR.joinpath('resized')

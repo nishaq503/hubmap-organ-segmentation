@@ -1,8 +1,6 @@
-import pathlib
 import random
 import typing
 
-import filepattern
 import keras.utils
 import numpy
 import pandas
@@ -24,27 +22,33 @@ class HubMapData(keras.utils.Sequence):
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.ids = ids
-
-        self.train_tiles_dir = paths.TRAIN_TILES
-        self.tile_pattern = '{p+}_x{xx}_y{yy}_c{c}.npy'
-        tile_fp = filepattern.FilePattern(self.train_tiles_dir, self.tile_pattern)
-
-        self.train_masks_dir = paths.TRAIN_MASKS
-        self.mask_pattern = '{p+}_x{xx}_y{yy}.npy'
-        mask_fp = filepattern.FilePattern(self.train_masks_dir, self.mask_pattern)
-
-        self.tile_paths: typing.List[typing.Tuple[pathlib.Path, typing.List[pathlib.Path]]] = [
-            (mask[0]['file'], [tile['file'] for tile in tiles])
-            for mask, tiles in zip(mask_fp(), tile_fp(group_by=['c']))
-            if mask[0]['p'] in self.ids
+        self.train_paths = [
+            paths.TRAIN_RESIZED.joinpath(f'{image_id}.npy')
+            for image_id in self.ids
         ]
+        assert len(self.train_paths) > 0
+        assert all((path.exists() for path in self.train_paths))
 
-        self.num_batches = len(self.tile_paths) // self.batch_size
+        # self.train_tiles_dir = paths.TRAIN_TILES
+        # self.tile_pattern = '{p+}_x{xx}_y{yy}_c{c}.npy'
+        # tile_fp = filepattern.FilePattern(self.train_tiles_dir, self.tile_pattern)
+        #
+        # self.train_masks_dir = paths.TRAIN_MASKS
+        # self.mask_pattern = '{p+}_x{xx}_y{yy}.npy'
+        # mask_fp = filepattern.FilePattern(self.train_masks_dir, self.mask_pattern)
+        #
+        # self.tile_paths: typing.List[typing.Tuple[pathlib.Path, typing.List[pathlib.Path]]] = [
+        #     (mask[0]['file'], [tile['file'] for tile in tiles])
+        #     for mask, tiles in zip(mask_fp(), tile_fp(group_by=['c']))
+        #     if mask[0]['p'] in self.ids
+        # ]
+
+        self.num_batches = len(self.ids) // self.batch_size
         self.on_epoch_end()
 
     def on_epoch_end(self):
         if self.shuffle:
-            numpy.random.shuffle(self.tile_paths)
+            numpy.random.shuffle(self.train_paths)
         return
 
     def __len__(self) -> int:
@@ -61,11 +65,10 @@ class HubMapData(keras.utils.Sequence):
         masks = numpy.empty((self.batch_size, constants.TILE_SIZE, constants.TILE_SIZE, 1), dtype=numpy.float32)
 
         for i, index in enumerate(batch_indices):
-            mask_path, tile_paths = self.tile_paths[index]
-            masks[i, :, :, 0] = numpy.load(str(mask_path))
+            image = numpy.load(str(self.train_paths[index]))
 
-            for c, path in enumerate(tile_paths):
-                tiles[i, :, :, c] = numpy.load(str(path))
+            tiles[i, :, :, :] = image[..., :3]
+            masks[i, :, :, 0] = image[..., 3]
 
         return tiles, masks
 
